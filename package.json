@@ -1,0 +1,27 @@
+{
+  "name": "phonebook",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farbodf/phonebook.git"
+  },
+  "author": "Farbod Faghihi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/farbodf/phonebook/issues"
+  },
+  "homepage": "https://github.com/farbodf/phonebook#readme",
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.9.1"
+  }
+}
