@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const cors = require('cors')
 
 let persons = [
       {
@@ -40,9 +41,10 @@ morgan.token('data', (req, res) => {
 })
 
 const app = express()
+app.use(cors())
 app.use(bodyParser.json())
-// app.use(requestLogger)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
+// app.use(requestLogger)
 
 app.get('/', (req, res) => res.send('Phonebook App'))
 app.get('/api/persons', (req, res) => res.status(200).json(persons))
@@ -84,6 +86,7 @@ app.use((request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
 })
 
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server is running on port ${PORT}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+})
