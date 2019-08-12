@@ -5,6 +5,8 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
 
+/*global next*/
+
 morgan.token('data', (req, res) => {
     if (req.method === 'POST') {
         return JSON.stringify(res.req.body)
@@ -61,41 +63,22 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndRemove(req.params.id)
-        .then(result => res.status(204).end())
+        .then(res.status(204).end())
         .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', update)
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const data = req.body
 
-    if (!data.name) {
-        return res.status(400).json({error: "name field is missing"})
-    } else if (!data.number) {
-        return res.status(400).json({error: "number field is missing"})
-    } else {
-        Person.findOne({name: data.name})
-            .then(person => {
-                if (person !== null) {
-                    // res.status(400).json({error: "name must be unique"})
-                    const id = person.toJSON().id
-                    // res.redirect(302, '/api')
-                    req.params.id = id
-                    update(req, res, next)
-                } else {
-                    const newEntry = new Person({
-                        name: data.name,
-                        number: data.number,
-                    })
-
-                    newEntry.save().then(savedEntry => {
-                        res.json(savedEntry.toJSON())
-                    })
-                }
-            })
-            .catch(error => console.log('error in post', error.message))
-    }
+    const newEntry = new Person({
+        name: data.name,
+        number: data.number,
+    })
+    newEntry.save()
+        .then(savedEntry => res.json(savedEntry.toJSON()))
+        .catch(error => next(error))
 })
 
 app.use((req, res) => {
@@ -104,8 +87,10 @@ app.use((req, res) => {
 
 app.use((error, req, res, next) => {
     console.error(error.message)
-    if (error.name === 'CastError' && error.kind == 'ObjectId') {
-        return res.status(400).send({error: 'incorrect id format'})
+    if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        return res.status(400).send({ error: 'incorrect id format' })
+    } else if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
     }
     next(error)
 })
